@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 #tic-tac-toe random agents 
 
 win = [(0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)]
-episodes = 250
+episodes = 1000
     
 class RandomAgent1:
         
@@ -116,6 +116,7 @@ for ep in range(episodes):
     grid = np.zeros(9, dtype=int)
     reward_X = 0
     reward_O = 0
+    player_1 = np.random.randint(2)
 
     while 1:
     
@@ -123,23 +124,40 @@ for ep in range(episodes):
             ini=True
         else:
             ini=False
+            
+        if player_1 == 0:            
+            action = agent1.choose_action(grid,ini)
+            grid[action] = 1
+            #print(grid.reshape(3,3)) 
+            h += 1
+            
+            if check_terminal(h):
+                break
+                   
+            action = agent2.choose_action(grid,ini=False)
+            grid[action] = 2    
+            #print(grid.reshape(3,3))
+            h += 1
+            
+            if check_terminal(h):
+                break
+        else:
+            action = agent2.choose_action(grid,ini=False)
+            grid[action] = 2    
+            #print(grid.reshape(3,3))
+            h += 1
+            
+            if check_terminal(h):
+                break
+            
+            action = agent1.choose_action(grid,ini)
+            grid[action] = 1
+            #print(grid.reshape(3,3)) 
+            h += 1
+            
+            if check_terminal(h):
+                break
                     
-        action = agent1.choose_action(grid,ini)
-        grid[action] = 1 
-        #print(grid.reshape(3,3)) 
-        h += 1
-        
-        if check_terminal(h):
-            break
-               
-        action = agent2.choose_action(grid,ini=False)
-        grid[action] = 2    
-        #print(grid.reshape(3,3))
-        h += 1
-        
-        if check_terminal(h):
-            break
-        
         i += 1
         
     f += 1
