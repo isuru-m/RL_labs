@@ -50,29 +50,21 @@ class AgentQ:
             
         #choose randomly within zero positions
         if not old_state in Q_table: 
-            try:
-                Q_table[old_state] = np.zeros(9, dtype=int)
-                #print(self.Q_table)
-                available = np.where(grid==0)[0]
-                Q_values = Q_table[old_state]
-                available_Q_values = Q_values[available]
-                max_available_Q_value = np.random.choice(np.flatnonzero(Q_table[old_state] == available_Q_values.max()))
-                
-                action = max_available_Q_value               
-            except:
-                #print('AgentQ skipped')
-                action = []
-        else:
-            try:
-                available = np.where(grid==0)[0]
-                Q_values = Q_table[old_state]
-                available_Q_values = Q_values[available]
-                max_available_Q_value = np.random.choice(np.flatnonzero(Q_table[old_state] == available_Q_values.max()))             
-                
-                action = max_available_Q_value               
-            except:
-                #print('AgentQ skipped')
-                action = []
+            Q_table[old_state] = np.zeros(9)
+                    
+        try:
+            Q_table[old_state] = np.zeros(9)
+            #print(self.Q_table)
+            available = np.where(grid==0)[0]
+            Q_values = Q_table[old_state]
+            available_Q_values = Q_values[available]
+            max_available_Q_value = np.random.choice(np.flatnonzero(Q_table[old_state] == available_Q_values.max()))
+            
+            action = max_available_Q_value               
+        except:
+            #print('AgentQ skipped')
+            action = []
+        
                 
         #grid[action] = 2        
         return action, old_state
@@ -80,17 +72,30 @@ class AgentQ:
     def take_action(self, action, grid, Q_table):
         grid[action] = 2
         new_state = tuple(grid)
-        
-        Q_table[new_state] = np.zeros(9, dtype=int)
-              
-        old_q_arr = Q_table[(old_state)]
-        old_q_value = old_q_arr[action]
-        
-        max_q_new_state = np.max(Q_table[new_state]) 
-        
-        
-        Q_table[old_state][action] = (1-self.alpha)*old_q_value + self.alpha*(reward_O + self.gamma*max_q_new_state)
         return new_state
+    
+    def update_q(self, action, Q_table, new_state, old_state, reward_O):
+        
+        print( action)
+        print( Q_table)
+        print( new_state)
+        print( old_state)
+        print( reward_O)
+                                        
+        
+        
+        if not new_state in Q_table:
+            Q_table[new_state] = np.zeros(9)
+                            
+        old_q_arr = Q_table[(old_state)]
+        print('old_q_arr=', old_q_arr)
+        old_q_value = old_q_arr[action] 
+        print('old_q_value=', old_q_value)           
+        max_q_new_state = np.max(Q_table[new_state]) 
+        print('max_q_new_state', max_q_new_state)
+                    
+        Q_table[old_state][action] = (1-self.alpha)*old_q_value + self.alpha*(reward_O + self.gamma*max_q_new_state)
+        print('Q(s,a)=',Q_table[old_state][action])
             
         
 def check_terminal(h):
@@ -178,7 +183,6 @@ for ep in range(episodes):
             h += 1
             
             if check_terminal(h):
-                
                 break
                    
             action, old_state = agent2.choose_action(h,grid,Q_table)
@@ -207,9 +211,10 @@ for ep in range(episodes):
             
             if check_terminal(h):
                 break
-                    
+            
         i += 1
-        
+    #update the Q table     
+    agent2.update_q(action, Q_table, new_state, old_state, reward_O)    
     f += 1
     return_x[ep] = reward_X + return_x[ep-1]
     return_o[ep] = reward_O + return_o[ep-1]
