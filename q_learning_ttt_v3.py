@@ -21,14 +21,10 @@ episodes = 10000
 class RandomAgent1:
         
     def choose_action(self,h,grid):
-        if h==0:                
-            action = np.random.choice(9)
-        else:
-            available = np.where(grid==0)[0]
-            try:
-                action = np.random.choice(available)
-            except:
-                action = []
+
+        available = np.where(grid==0)[0]
+        action = np.random.choice(available)
+
         grid[action] = 1
         #return action
  
@@ -45,19 +41,14 @@ class AgentQ:
         if not old_state in Q_table: 
             Q_table[old_state] = np.zeros(9)
                     
-        try:
-            available = np.where(grid==0)
-            Q_values = Q_table[old_state]
-            available_Q_values = Q_values[available]
-            max_available_Q_value = np.random.choice(np.flatnonzero(Q_table[old_state] == available_Q_values.max()))
-            
-            action = max_available_Q_value               
-        except:
-            print('AgentQ skipped')
-            action = []
+        #try:
+        available = np.where(grid==0)[0]
+        Q_values = Q_table[(old_state)]
+        available_Q_values = Q_values[available]
+        max_available_Q_value_index = np.random.choice(np.flatnonzero(Q_table[old_state] == available_Q_values.max()))
         
-                
-        #grid[action] = 2        
+        action = max_available_Q_value_index
+       
         return action, old_state
     
     def take_action(self, action, grid, Q_table):
@@ -66,27 +57,14 @@ class AgentQ:
         return new_state
     
     def update_q(self, action, Q_table, new_state, old_state, reward_O):
-        
-       #print( action)
-        #print( Q_table)
-       #print( new_state)
-       #print( old_state)
-       #print( reward_O)
-                                        
-        
-        
         if not new_state in Q_table:
             Q_table[new_state] = np.zeros(9)
                             
         old_q_arr = Q_table[(old_state)]
-       #print('old_q_arr=', old_q_arr)
-        old_q_value = old_q_arr[action] 
-       #print('old_q_value=', old_q_value)           
+        old_q_value = old_q_arr[action]           
         max_q_new_state = np.max(Q_table[new_state]) 
-       #print('max_q_new_state', max_q_new_state)
                     
         Q_table[old_state][action] = (1-self.alpha)*old_q_value + self.alpha*(reward_O + self.gamma*max_q_new_state)
-        #print('Q(s,a)=',Q_table[old_state][action])
             
         
 def check_terminal(h):
@@ -137,7 +115,7 @@ def check_terminal(h):
                     reward_O += 1
                     reward_X -= 1
                     return True
-    elif h>=9:
+    elif h>9:
         print('Draw!!')
         reward_O += 0
         reward_X -= 0        
@@ -169,17 +147,14 @@ for ep in range(episodes):
             
         if player_1 == 0:            
             agent1.choose_action(h,grid)
-            #grid[action] = 1
             print(grid.reshape(3,3)) 
             h += 1
             
-            if h==9 or check_terminal(h):
+            if check_terminal(h):
                 break
                    
             action, old_state = agent2.choose_action(h,grid,Q_table)
-            new_state = agent2.take_action(action,grid,Q_table)
-            
-            #grid[action] = 2    
+            new_state = agent2.take_action(action,grid,Q_table)  
             print(grid.reshape(3,3))
             h += 1
             
@@ -187,16 +162,14 @@ for ep in range(episodes):
                 break
         else:
             action, old_state = agent2.choose_action(h,grid,Q_table)
-            new_state = agent2.take_action(action,grid,Q_table)
-            #grid[action] = 2    
+            new_state = agent2.take_action(action,grid,Q_table)   
             print(grid.reshape(3,3))
             h += 1
             
-            if h==9 or check_terminal(h):
+            if check_terminal(h):
                 break
             
             agent1.choose_action(h,grid)
-            #grid[action] = 1
             print(grid.reshape(3,3)) 
             h += 1
             
